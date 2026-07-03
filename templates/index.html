@@ -57,7 +57,17 @@
   .stamp.out{color:var(--amber);border-color:var(--amber);background:var(--amber-tint);}
   .holder{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-muted);margin-bottom:10px;}
   .qr-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-  .qr-box{width:72px;height:72px;background:#fff;border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .qr-box{width:72px;height:72px;background:#fff;border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+  .qr-box:hover{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-tint);}
+  .qr-hint{font-size:11px;color:var(--ink-muted);line-height:1.5;margin:0;}
+  .ver{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;vertical-align:2px;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:2px 7px;margin-left:8px;}
+  .focus-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--teal-tint);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:var(--teal);}
+  .card.focused{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-tint);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(34,40,42,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .modal{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px;max-width:340px;width:100%;text-align:center;}
+  .modal h2{font-family:'Lora',serif;font-size:16px;font-weight:600;margin:0 0 2px;}
+  .modal .callno{margin:0 0 4px;}
+  .qr-large{display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px;margin:12px 0;}
   .card-actions{display:flex;flex-direction:column;gap:8px;}
   .card-actions button{width:100%;}
   .inline-form{display:flex;gap:6px;}
@@ -77,8 +87,13 @@
 <body>
 <div class="wrap">
   <p class="eyebrow">Catalogo fisico</p>
-  <h1>Scaffale ufficio</h1>
+  <h1>Scaffale ufficio <span class="ver">v{{ version }}</span></h1>
   <p class="sub" id="countLine">Caricamento catalogo…</p>
+
+  <div class="focus-bar" id="focusBar" style="display:none;">
+    <span id="focusText"></span>
+    <button class="ghost" id="showAllBtn">Mostra tutto lo scaffale</button>
+  </div>
 
   <div class="toolbar">
     <button class="primary" id="toggleAdd">Aggiungi libro</button>
@@ -119,10 +134,36 @@
   <p class="note">Ogni prestito e restituzione viene salvato in un database SQLite sul server, insieme a un registro con data, ora ed eventuale nome di chi ha preso il libro. Indicare il nome è facoltativo.</p>
 </div>
 
+<div class="modal-overlay" id="qrModal" style="display:none;">
+  <div class="modal">
+    <h2 id="qrModalTitle"></h2>
+    <p class="callno" id="qrModalId"></p>
+    <div class="qr-large" id="qrModalBox"></div>
+    <div class="panel-actions">
+      <button class="ghost" id="qrModalClose">Chiudi</button>
+      <button class="primary" id="qrModalDownload">Scarica per la stampa</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const BASE_URL = {{ base_url|tojson }} || window.location.origin;
 
 let books = [];
+let focusId = new URLSearchParams(window.location.search).get('book');
+let modalBookId = null;
+
+function enterFocus(id){
+  focusId = id;
+  history.replaceState(null, '', window.location.pathname + '?book=' + encodeURIComponent(id));
+  render();
+}
+
+function exitFocus(){
+  focusId = null;
+  history.replaceState(null, '', window.location.pathname);
+  render();
+}
 
 function bookPermalink(id){
   return BASE_URL + '/?book=' + encodeURIComponent(id);
@@ -169,35 +210,125 @@ function render(){
   document.getElementById('countLine').textContent =
     books.length + ' libri censiti · ' + available + ' disponibili · ' + (books.length - available) + ' in prestito';
 
-  if(!books.length){
-    grid.innerHTML = '<p class="empty">Nessun libro censito. Aggiungine uno per iniziare.</p>';
+  const focusBook = focusId ? books.find(b => b.id === focusId) : null;
+  const focusBar = document.getElementById('focusBar');
+  if(focusId){
+    focusBar.style.display = 'flex';
+    document.getElementById('focusText').textContent = focusBook
+      ? 'Libro selezionato dal QR code: ' + focusBook.title + ' (' + focusBook.id + ')'
+      : 'Codice "' + focusId + '" non presente in catalogo.';
+  } else {
+    focusBar.style.display = 'none';
+  }
+
+  const visible = focusId ? (focusBook ? [focusBook] : []) : books;
+
+  if(!visible.length){
+    grid.innerHTML = focusId
+      ? '<p class="empty">Nessun libro corrisponde a questo QR code.</p>'
+      : '<p class="empty">Nessun libro censito. Aggiungine uno per iniziare.</p>';
     return;
   }
 
-  grid.innerHTML = books.map(b => {
+  grid.innerHTML = visible.map(b => {
     const isOut = b.status === 'checked_out';
     return `
-      <div class="card" data-id="${b.id}">
+      <div class="card ${focusId ? 'focused' : ''}" data-id="${b.id}">
         <span class="stamp ${isOut ? 'out' : 'avail'}">${isOut ? 'in prestito' : 'disponibile'}</span>
         <p class="callno">${b.id}</p>
         <p class="title">${escapeHtml(b.title)}</p>
         <p class="author">${escapeHtml(b.author || '')}</p>
         ${isOut ? `<p class="holder">preso da ${escapeHtml(b.holder || 'anonimo')} · dal ${fmtDateTime(b.since)}</p>` : ''}
         <div class="qr-row">
-          <div class="qr-box" id="qr-${cssSafe(b.id)}"></div>
+          <div class="qr-box" id="qr-${cssSafe(b.id)}" onclick="openQrModal('${b.id}')" title="Apri il QR in formato stampabile" role="button" tabindex="0"></div>
+          <p class="qr-hint">Clicca sul codice per scaricarlo in formato stampabile</p>
         </div>
         <div class="card-actions" id="actions-${cssSafe(b.id)}"></div>
       </div>
     `;
   }).join('');
 
-  books.forEach(b => {
+  visible.forEach(b => {
     const qrEl = document.getElementById('qr-' + cssSafe(b.id));
     qrEl.innerHTML = '';
     new QRCode(qrEl, {text: bookPermalink(b.id), width: 64, height: 64, colorDark: '#22282A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
     renderActions(b.id);
   });
 }
+
+function openQrModal(id){
+  const book = books.find(b => b.id === id);
+  if(!book) return;
+  modalBookId = id;
+  document.getElementById('qrModalTitle').textContent = book.title;
+  document.getElementById('qrModalId').textContent = id;
+  const box = document.getElementById('qrModalBox');
+  box.innerHTML = '';
+  new QRCode(box, {text: bookPermalink(id), width: 220, height: 220, colorDark: '#22282A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
+  document.getElementById('qrModal').style.display = 'flex';
+}
+
+function closeQrModal(){
+  document.getElementById('qrModal').style.display = 'none';
+  modalBookId = null;
+}
+
+function wrapText(ctx, text, maxWidth){
+  const words = String(text).split(/\s+/);
+  const lines = [];
+  let line = '';
+  words.forEach(w => {
+    const test = line ? line + ' ' + w : w;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line);
+      line = w;
+    } else {
+      line = test;
+    }
+  });
+  if(line) lines.push(line);
+  return lines;
+}
+
+function downloadQr(){
+  if(!modalBookId) return;
+  const book = books.find(b => b.id === modalBookId);
+  const tmp = document.createElement('div');
+  new QRCode(tmp, {text: bookPermalink(modalBookId), width: 600, height: 600, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H});
+  const qrCanvas = tmp.querySelector('canvas');
+  const W = 800;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = 980;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, canvas.height);
+  ctx.drawImage(qrCanvas, 100, 60, 600, 600);
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.font = '600 34px Georgia, serif';
+  let y = 740;
+  wrapText(ctx, book ? book.title : modalBookId, W - 120).slice(0, 3).forEach(line => {
+    ctx.fillText(line, W / 2, y);
+    y += 44;
+  });
+  ctx.font = '28px "IBM Plex Mono", monospace';
+  ctx.fillText(modalBookId, W / 2, y + 14);
+  const a = document.createElement('a');
+  a.download = 'qr-' + modalBookId + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+document.getElementById('qrModalClose').addEventListener('click', closeQrModal);
+document.getElementById('qrModalDownload').addEventListener('click', downloadQr);
+document.getElementById('qrModal').addEventListener('click', (e) => {
+  if(e.target === e.currentTarget) closeQrModal();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeQrModal();
+});
+document.getElementById('showAllBtn').addEventListener('click', exitFocus);
 
 function renderActions(id, showForm){
   const book = books.find(b => b.id === id);
@@ -320,40 +451,9 @@ function handleScanResult(codeText){
     return;
   }
 
-  titleEl.textContent = book.title + ' — ' + book.id;
-  if(book.status === 'available'){
-    bodyEl.innerHTML = `
-      <p class="hint">Nome facoltativo</p>
-      <div class="inline-form">
-        <input type="text" placeholder="Chi lo prende (facoltativo)" id="scanNameInput">
-        <button class="primary" onclick="confirmScanCheckout('${book.id}')">Segna come preso</button>
-      </div>`;
-  } else {
-    bodyEl.innerHTML = `
-      <p class="sub" style="margin:0 0 10px;">Attualmente da ${escapeHtml(book.holder || 'anonimo')}, dal ${fmtDateTime(book.since)}.</p>
-      <button class="primary" onclick="confirmScanReturn('${book.id}')">Segna come restituito</button>`;
-  }
-}
-
-async function confirmScanCheckout(id){
-  const name = (document.getElementById('scanNameInput').value || '').trim();
-  try{
-    await api(`/api/books/${encodeURIComponent(id)}/checkout`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name})
-    });
-  }catch(e){ /* ignore */ }
-  document.getElementById('scanPanel').style.display = 'none';
-  await loadBooks();
-}
-
-async function confirmScanReturn(id){
-  try{
-    await api(`/api/books/${encodeURIComponent(id)}/checkin`, {method: 'POST'});
-  }catch(e){ /* ignore */ }
-  document.getElementById('scanPanel').style.display = 'none';
-  await loadBooks();
+  // Libro trovato: si passa alla vista con il solo libro in evidenza.
+  panel.style.display = 'none';
+  enterFocus(book.id);
 }
 
 async function loadLogs(){
@@ -370,7 +470,7 @@ async function loadLogs(){
   }
   el.innerHTML = `
     <table class="log">
-      <thead><tr><th>Quando</th><th>Libro</th><th>Azione</th><th>Chi</th></tr></thead>
+      <thead><tr><th>Data</th><th>Libro</th><th>Azione</th><th>Utente</th></tr></thead>
       <tbody>
         ${logs.map(l => `
           <tr>
@@ -385,14 +485,7 @@ async function loadLogs(){
   `;
 }
 
-loadBooks().then(() => {
-  const requested = new URLSearchParams(window.location.search).get('book');
-  if(requested){
-    history.replaceState(null, '', window.location.pathname);
-    handleScanResult(requested);
-    document.getElementById('scanPanel').scrollIntoView({behavior: 'smooth', block: 'center'});
-  }
-});
+loadBooks();
 </script>
 </body>
 </html>

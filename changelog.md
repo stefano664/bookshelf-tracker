@@ -1,0 +1,23 @@
+# Changelog
+
+## [0.2.0] — 2026-07-03
+
+### Aggiunto
+- I QR code nella pagina principale sono cliccabili: si apre una modale con il QR ingrandito, da cui è possibile scaricarlo come PNG ad alta risoluzione in formato stampabile (con titolo e codice del libro).
+- Il numero di versione del servizio è visibile nella pagina principale, accanto al titolo.
+- Vista "libro in evidenza": scansionando il QR code si apre la pagina principale con il solo libro interessato, evidenziato e pronto per il prestito o la restituzione; gli altri libri sono nascosti. Un pulsante "Mostra tutto lo scaffale" riporta alla vista completa.
+
+### Modificato
+- Nel registro attività le colonne "Quando" e "Chi" sono state rinominate in "Data" e "Utente".
+- Anche la scansione da foto ("Scansiona QR") porta alla vista "libro in evidenza" quando il libro viene trovato.
+
+## [0.1.1] — 2026-07-03
+
+### Aggiunto
+- Icona del servizio (favicon e icona per dispositivi mobili).
+- I QR code contengono un permalink al libro invece del solo codice.
+
+## [0.1.0] — 2026-07-03
+
+### Aggiunto
+- Prima versione: catalogo libri con QR code, prestito e restituzione, registro attività su database SQLite.

@@ -1,7 +1,7 @@
 services:
   bookshelf:
     build: .
-    image: ghcr.io/stefano664/bookshelf-tracker:0.1.1
+    image: ghcr.io/stefano664/bookshelf-tracker:0.2.0
     ports:
       - "5000:5000"
     environment:

@@ -88,7 +88,7 @@ def next_free_id(db):
 
 @app.route("/")
 def index():
-    return render_template("index.html", base_url=BASE_URL)
+    return render_template("index.html", base_url=BASE_URL, version=APP_VERSION)
 
 
 @app.route("/favicon.ico")
