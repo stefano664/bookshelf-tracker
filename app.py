@@ -6,6 +6,9 @@ from flask import Flask, jsonify, request, g, render_template
 
 DB_PATH = os.environ.get("DB_PATH", "/data/shelf.db")
 
+with open(os.path.join(os.path.dirname(__file__), "VERSION")) as f:
+    APP_VERSION = f.read().strip()
+
 app = Flask(__name__)
 
 
@@ -85,6 +88,11 @@ def next_free_id(db):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/api/version", methods=["GET"])
+def version():
+    return jsonify({"version": APP_VERSION})
 
 
 @app.route("/api/books", methods=["GET"])
