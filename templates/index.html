@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scaffale ufficio — catalogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<style>
+  :root{
+    --paper:#F6F3EC;
+    --ink:#22282A;
+    --ink-muted:#6B7370;
+    --line:#DAD5C7;
+    --card:#FFFEFB;
+    --teal:#1E6F5C;
+    --teal-tint:#DDEEE8;
+    --amber:#B07A2A;
+    --amber-tint:#F3E6CD;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 48px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--ink-muted);text-transform:uppercase;margin:0 0 4px;}
+  h1{font-family:'Lora',serif;font-weight:600;font-size:24px;margin:0 0 2px;}
+  .sub{font-size:13px;color:var(--ink-muted);margin:0 0 20px;}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  button{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;}
+  button:hover{border-color:var(--ink-muted);}
+  button.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+  button.primary:hover{background:#195A4B;}
+  button.ghost{background:transparent;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:20px;}
+  .panel h2{font-family:'Lora',serif;font-size:15px;font-weight:600;margin:0 0 10px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:160px;}
+  label{display:block;font-size:12px;color:var(--ink-muted);margin-bottom:4px;}
+  input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;background:#fff;color:var(--ink);}
+  input[type=text]:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  .panel-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
+  #scanFile{display:none;}
+  .scan-result{border-color:var(--teal);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:14px;margin-bottom:28px;}
+  .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 16px 14px;}
+  .card::before{content:"";position:absolute;top:0;left:14px;right:14px;height:1px;background-image:linear-gradient(to right, var(--line) 60%, transparent 0%);background-size:8px 1px;background-repeat:repeat-x;}
+  .callno{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-muted);letter-spacing:.04em;margin:6px 0 8px;}
+  .title{font-family:'Lora',serif;font-weight:600;font-size:16px;line-height:1.3;margin:0 0 2px;}
+  .author{font-size:13px;color:var(--ink-muted);margin:0 0 10px;}
+  .stamp{position:absolute;top:-10px;right:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:3px;border:1.5px dashed;transform:rotate(-6deg);background:var(--card);}
+  .stamp.avail{color:var(--teal);border-color:var(--teal);background:var(--teal-tint);}
+  .stamp.out{color:var(--amber);border-color:var(--amber);background:var(--amber-tint);}
+  .holder{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-muted);margin-bottom:10px;}
+  .qr-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .qr-box{width:72px;height:72px;background:#fff;border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .card-actions{display:flex;flex-direction:column;gap:8px;}
+  .card-actions button{width:100%;}
+  .inline-form{display:flex;gap:6px;}
+  .inline-form input{flex:1;}
+  .hint{font-size:11px;color:var(--ink-muted);margin:2px 0 6px;}
+  .empty{font-size:13px;color:var(--ink-muted);text-align:center;padding:30px 0;}
+  .note{font-size:12px;color:var(--ink-muted);margin-top:6px;line-height:1.6;}
+  table.log{width:100%;border-collapse:collapse;font-size:13px;}
+  table.log th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--line);}
+  table.log td{padding:7px 8px;border-bottom:1px solid var(--line);}
+  table.log tr:last-child td{border-bottom:none;}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 7px;border-radius:3px;}
+  .tag.checkout{color:var(--amber);background:var(--amber-tint);}
+  .tag.checkin{color:var(--teal);background:var(--teal-tint);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Catalogo fisico</p>
+  <h1>Scaffale ufficio</h1>
+  <p class="sub" id="countLine">Caricamento catalogo…</p>
+
+  <div class="toolbar">
+    <button class="primary" id="toggleAdd">Aggiungi libro</button>
+    <button id="toggleScan">Scansiona QR</button>
+    <input type="file" id="scanFile" accept="image/*" capture="environment">
+  </div>
+
+  <div class="panel" id="addPanel" style="display:none;">
+    <h2>Nuovo libro sullo scaffale</h2>
+    <div class="row">
+      <div>
+        <label for="newTitle">Titolo</label>
+        <input type="text" id="newTitle" placeholder="Titolo del libro">
+      </div>
+      <div>
+        <label for="newAuthor">Autore</label>
+        <input type="text" id="newAuthor" placeholder="Nome autore">
+      </div>
+    </div>
+    <div class="panel-actions">
+      <button class="ghost" id="cancelAdd">Annulla</button>
+      <button class="primary" id="confirmAdd">Aggiungi al catalogo</button>
+    </div>
+  </div>
+
+  <div class="panel scan-result" id="scanPanel" style="display:none;">
+    <h2 id="scanTitle">Scansione…</h2>
+    <div id="scanBody"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="panel" id="logPanel">
+    <h2>Registro attività</h2>
+    <div id="logBody"><p class="empty">Nessuna attività registrata.</p></div>
+  </div>
+
+  <p class="note">Ogni prestito e restituzione viene salvato in un database SQLite sul server, insieme a un registro con data, ora ed eventuale nome di chi ha preso il libro. Indicare il nome è facoltativo.</p>
+</div>
+
+<script>
+let books = [];
+
+async function api(path, options){
+  const res = await fetch(path, options);
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok){
+    throw new Error(data.error || 'errore');
+  }
+  return data;
+}
+
+async function loadBooks(){
+  try{
+    books = await api('/api/books');
+  }catch(e){
+    books = [];
+  }
+  render();
+  loadLogs();
+}
+
+function fmtDateTime(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleString('it-IT', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  const available = books.filter(b => b.status === 'available').length;
+  document.getElementById('countLine').textContent =
+    books.length + ' libri censiti · ' + available + ' disponibili · ' + (books.length - available) + ' in prestito';
+
+  if(!books.length){
+    grid.innerHTML = '<p class="empty">Nessun libro censito. Aggiungine uno per iniziare.</p>';
+    return;
+  }
+
+  grid.innerHTML = books.map(b => {
+    const isOut = b.status === 'checked_out';
+    return `
+      <div class="card" data-id="${b.id}">
+        <span class="stamp ${isOut ? 'out' : 'avail'}">${isOut ? 'in prestito' : 'disponibile'}</span>
+        <p class="callno">${b.id}</p>
+        <p class="title">${escapeHtml(b.title)}</p>
+        <p class="author">${escapeHtml(b.author || '')}</p>
+        ${isOut ? `<p class="holder">preso da ${escapeHtml(b.holder || 'anonimo')} · dal ${fmtDateTime(b.since)}</p>` : ''}
+        <div class="qr-row">
+          <div class="qr-box" id="qr-${cssSafe(b.id)}"></div>
+        </div>
+        <div class="card-actions" id="actions-${cssSafe(b.id)}"></div>
+      </div>
+    `;
+  }).join('');
+
+  books.forEach(b => {
+    const qrEl = document.getElementById('qr-' + cssSafe(b.id));
+    qrEl.innerHTML = '';
+    new QRCode(qrEl, {text: b.id, width: 64, height: 64, colorDark: '#22282A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
+    renderActions(b.id);
+  });
+}
+
+function renderActions(id, showForm){
+  const book = books.find(b => b.id === id);
+  const el = document.getElementById('actions-' + cssSafe(id));
+  if(!book) return;
+
+  if(book.status === 'available'){
+    if(showForm){
+      el.innerHTML = `
+        <p class="hint">Nome facoltativo</p>
+        <div class="inline-form">
+          <input type="text" placeholder="Chi lo prende (facoltativo)" id="nameInput-${cssSafe(id)}">
+          <button class="primary" onclick="confirmCheckout('${id}')">Conferma</button>
+        </div>`;
+    } else {
+      el.innerHTML = `<button onclick="renderActions('${id}', true)">Segna come preso</button>`;
+    }
+  } else {
+    el.innerHTML = `<button onclick="confirmReturn('${id}')">Segna come restituito</button>`;
+  }
+}
+
+async function confirmCheckout(id){
+  const input = document.getElementById('nameInput-' + cssSafe(id));
+  const name = (input.value || '').trim();
+  try{
+    await api(`/api/books/${encodeURIComponent(id)}/checkout`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name})
+    });
+    await loadBooks();
+  }catch(e){
+    await loadBooks();
+  }
+}
+
+async function confirmReturn(id){
+  try{
+    await api(`/api/books/${encodeURIComponent(id)}/checkin`, {method: 'POST'});
+  }catch(e){
+    // ignore, refresh anyway
+  }
+  await loadBooks();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function cssSafe(id){ return id.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+document.getElementById('toggleAdd').addEventListener('click', () => {
+  document.getElementById('addPanel').style.display = 'block';
+  document.getElementById('scanPanel').style.display = 'none';
+  document.getElementById('newTitle').focus();
+});
+document.getElementById('cancelAdd').addEventListener('click', () => {
+  document.getElementById('addPanel').style.display = 'none';
+});
+document.getElementById('confirmAdd').addEventListener('click', async () => {
+  const title = document.getElementById('newTitle').value.trim();
+  const author = document.getElementById('newAuthor').value.trim();
+  if(!title) { document.getElementById('newTitle').focus(); return; }
+  try{
+    await api('/api/books', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title, author})
+    });
+  }catch(e){ /* ignore */ }
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newAuthor').value = '';
+  document.getElementById('addPanel').style.display = 'none';
+  await loadBooks();
+});
+
+document.getElementById('toggleScan').addEventListener('click', () => {
+  document.getElementById('scanFile').click();
+});
+
+document.getElementById('scanFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      handleScanResult(code ? code.data : null);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+function handleScanResult(codeText){
+  const panel = document.getElementById('scanPanel');
+  const titleEl = document.getElementById('scanTitle');
+  const bodyEl = document.getElementById('scanBody');
+  document.getElementById('addPanel').style.display = 'none';
+  panel.style.display = 'block';
+
+  const book = codeText ? books.find(b => b.id === codeText) : null;
+
+  if(!codeText){
+    titleEl.textContent = 'QR non riconosciuto';
+    bodyEl.innerHTML = '<p class="sub" style="margin:0;">Riprova con una foto più a fuoco e centrata sul codice.</p>';
+    return;
+  }
+  if(!book){
+    titleEl.textContent = 'Codice non in catalogo: ' + escapeHtml(codeText);
+    bodyEl.innerHTML = '<p class="sub" style="margin:0;">Questo QR non corrisponde a nessun libro censito.</p>';
+    return;
+  }
+
+  titleEl.textContent = book.title + ' — ' + book.id;
+  if(book.status === 'available'){
+    bodyEl.innerHTML = `
+      <p class="hint">Nome facoltativo</p>
+      <div class="inline-form">
+        <input type="text" placeholder="Chi lo prende (facoltativo)" id="scanNameInput">
+        <button class="primary" onclick="confirmScanCheckout('${book.id}')">Segna come preso</button>
+      </div>`;
+  } else {
+    bodyEl.innerHTML = `
+      <p class="sub" style="margin:0 0 10px;">Attualmente da ${escapeHtml(book.holder || 'anonimo')}, dal ${fmtDateTime(book.since)}.</p>
+      <button class="primary" onclick="confirmScanReturn('${book.id}')">Segna come restituito</button>`;
+  }
+}
+
+async function confirmScanCheckout(id){
+  const name = (document.getElementById('scanNameInput').value || '').trim();
+  try{
+    await api(`/api/books/${encodeURIComponent(id)}/checkout`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name})
+    });
+  }catch(e){ /* ignore */ }
+  document.getElementById('scanPanel').style.display = 'none';
+  await loadBooks();
+}
+
+async function confirmScanReturn(id){
+  try{
+    await api(`/api/books/${encodeURIComponent(id)}/checkin`, {method: 'POST'});
+  }catch(e){ /* ignore */ }
+  document.getElementById('scanPanel').style.display = 'none';
+  await loadBooks();
+}
+
+async function loadLogs(){
+  let logs = [];
+  try{
+    logs = await api('/api/logs?limit=20');
+  }catch(e){
+    logs = [];
+  }
+  const el = document.getElementById('logBody');
+  if(!logs.length){
+    el.innerHTML = '<p class="empty">Nessuna attività registrata.</p>';
+    return;
+  }
+  el.innerHTML = `
+    <table class="log">
+      <thead><tr><th>Quando</th><th>Libro</th><th>Azione</th><th>Chi</th></tr></thead>
+      <tbody>
+        ${logs.map(l => `
+          <tr>
+            <td>${fmtDateTime(l.timestamp)}</td>
+            <td>${escapeHtml(l.book_title || l.book_id)}</td>
+            <td><span class="tag ${l.action}">${l.action === 'checkout' ? 'preso' : 'restituito'}</span></td>
+            <td>${escapeHtml(l.actor_name || '—')}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+loadBooks();
+</script>
+</body>
+</html>
