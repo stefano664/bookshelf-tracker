@@ -1,0 +1,67 @@
+- generic [ref=e2]:
+  - paragraph [ref=e3]: Catalogo fisico
+  - heading "Scaffale ufficio" [level=1] [ref=e4]
+  - paragraph [ref=e5]: 6 libri censiti · 6 disponibili · 0 in prestito
+  - generic [ref=e6]:
+    - button "Aggiungi libro" [ref=e7] [cursor=pointer]
+    - button "Scansiona QR" [ref=e8] [cursor=pointer]
+  - generic [ref=e9]:
+    - heading "Le 7 regole per avere successo — SVI-01" [level=2] [ref=e10]
+    - generic [ref=e11]:
+      - paragraph [ref=e12]: Nome facoltativo
+      - generic [ref=e13]:
+        - textbox "Chi lo prende (facoltativo)" [ref=e14]
+        - button "Segna come preso" [ref=e15] [cursor=pointer]
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: disponibile
+      - paragraph [ref=e19]: NAR-01
+      - paragraph [ref=e20]: Se questo è un uomo
+      - paragraph [ref=e21]: Primo Levi
+      - generic "https://books.stefano664.duckdns.org/?book=NAR-01" [ref=e23]:
+        - img [ref=e24]
+      - button "Segna come preso" [ref=e26] [cursor=pointer]
+    - generic [ref=e27]:
+      - generic [ref=e28]: disponibile
+      - paragraph [ref=e29]: NAR-02
+      - paragraph [ref=e30]: Il nome della rosa
+      - paragraph [ref=e31]: Umberto Eco
+      - generic "https://books.stefano664.duckdns.org/?book=NAR-02" [ref=e33]:
+        - img [ref=e34]
+      - button "Segna come preso" [ref=e36] [cursor=pointer]
+    - generic [ref=e37]:
+      - generic [ref=e38]: disponibile
+      - paragraph [ref=e39]: NAR-03
+      - paragraph [ref=e40]: Le otto montagne
+      - paragraph [ref=e41]: Paolo Cognetti
+      - generic "https://books.stefano664.duckdns.org/?book=NAR-03" [ref=e43]:
+        - img [ref=e44]
+      - button "Segna come preso" [ref=e46] [cursor=pointer]
+    - generic [ref=e47]:
+      - generic [ref=e48]: disponibile
+      - paragraph [ref=e49]: SVI-01
+      - paragraph [ref=e50]: Le 7 regole per avere successo
+      - paragraph [ref=e51]: Stephen Covey
+      - generic "https://books.stefano664.duckdns.org/?book=SVI-01" [ref=e53]:
+        - img [ref=e54]
+      - button "Segna come preso" [ref=e56] [cursor=pointer]
+    - generic [ref=e57]:
+      - generic [ref=e58]: disponibile
+      - paragraph [ref=e59]: SVI-02
+      - paragraph [ref=e60]: Intelligenza emotiva
+      - paragraph [ref=e61]: Daniel Goleman
+      - generic "https://books.stefano664.duckdns.org/?book=SVI-02" [ref=e63]:
+        - img [ref=e64]
+      - button "Segna come preso" [ref=e66] [cursor=pointer]
+    - generic [ref=e67]:
+      - generic [ref=e68]: disponibile
+      - paragraph [ref=e69]: SVI-03
+      - paragraph [ref=e70]: Le abitudini atomiche
+      - paragraph [ref=e71]: James Clear
+      - generic "https://books.stefano664.duckdns.org/?book=SVI-03" [ref=e73]:
+        - img [ref=e74]
+      - button "Segna come preso" [ref=e76] [cursor=pointer]
+  - generic [ref=e77]:
+    - heading "Registro attività" [level=2] [ref=e78]
+    - paragraph [ref=e80]: Nessuna attività registrata.
+  - paragraph [ref=e81]: Ogni prestito e restituzione viene salvato in un database SQLite sul server, insieme a un registro con data, ora ed eventuale nome di chi ha preso il libro. Indicare il nome è facoltativo.

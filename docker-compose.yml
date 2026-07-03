@@ -4,6 +4,8 @@ services:
     image: ghcr.io/stefano664/bookshelf-tracker:0.1.0
     ports:
       - "5000:5000"
+    environment:
+      - BASE_URL=https://books.stefano664.duckdns.org
     volumes:
       - ./data:/data
     restart: unless-stopped

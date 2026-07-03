@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Flask, jsonify, request, g, render_template
 
 DB_PATH = os.environ.get("DB_PATH", "/data/shelf.db")
+BASE_URL = os.environ.get("BASE_URL", "").rstrip("/")
 
 with open(os.path.join(os.path.dirname(__file__), "VERSION")) as f:
     APP_VERSION = f.read().strip()
@@ -87,7 +88,7 @@ def next_free_id(db):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", base_url=BASE_URL)
 
 
 @app.route("/favicon.ico")

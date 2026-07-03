@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   :root{
     --paper:#F6F3EC;
@@ -120,7 +120,23 @@
 </div>
 
 <script>
+const BASE_URL = {{ base_url|tojson }} || window.location.origin;
+
 let books = [];
+
+function bookPermalink(id){
+  return BASE_URL + '/?book=' + encodeURIComponent(id);
+}
+
+// Accetta sia i nuovi QR con permalink sia i vecchi QR con il solo ID.
+function extractBookId(text){
+  try{
+    const url = new URL(text);
+    const param = url.searchParams.get('book');
+    if(param) return param;
+  }catch(e){ /* non è un URL: è un ID */ }
+  return text;
+}
 
 async function api(path, options){
   const res = await fetch(path, options);
@@ -178,7 +194,7 @@ function render(){
   books.forEach(b => {
     const qrEl = document.getElementById('qr-' + cssSafe(b.id));
     qrEl.innerHTML = '';
-    new QRCode(qrEl, {text: b.id, width: 64, height: 64, colorDark: '#22282A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
+    new QRCode(qrEl, {text: bookPermalink(b.id), width: 64, height: 64, colorDark: '#22282A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
     renderActions(b.id);
   });
 }
@@ -276,7 +292,7 @@ document.getElementById('scanFile').addEventListener('change', (e) => {
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height);
-      handleScanResult(code ? code.data : null);
+      handleScanResult(code ? extractBookId(code.data) : null);
     };
     img.src = ev.target.result;
   };
@@ -369,7 +385,14 @@ async function loadLogs(){
   `;
 }
 
-loadBooks();
+loadBooks().then(() => {
+  const requested = new URLSearchParams(window.location.search).get('book');
+  if(requested){
+    history.replaceState(null, '', window.location.pathname);
+    handleScanResult(requested);
+    document.getElementById('scanPanel').scrollIntoView({behavior: 'smooth', block: 'center'});
+  }
+});
 </script>
 </body>
 </html>
