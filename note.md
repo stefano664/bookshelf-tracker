@@ -3,13 +3,13 @@ Versionamento: era assente (solo 2 commit git, nessun tag). La versione ora vive
 
 # 1. Aggiorna version in package.json (es. 1.1.0)
 # 2. Committa e tagga git
-git tag v0.1.0
+git tag v0.2.0
 
 # 3. Rebuilda l'immagine con il nuovo tag
 docker compose build --no-cache
 # oppure manualmente:
-docker build -t bookshelf-tracker:0.1.1 .
+docker build -t bookshelf-tracker:0.2.0 .
 
 # 4. Pusha l'immagine
-docker tag bookshelf-tracker:0.1.1 ghcr.io/stefano664/bookshelf-tracker:0.1.1
-docker push ghcr.io/stefano664/bookshelf-tracker:0.1.1
+docker tag bookshelf-tracker:0.2.0 ghcr.io/stefano664/bookshelf-tracker:0.2.0
+docker push ghcr.io/stefano664/bookshelf-tracker:0.2.0
