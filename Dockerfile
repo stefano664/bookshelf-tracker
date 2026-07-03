@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py VERSION ./
 COPY templates/ templates/
+COPY static/ static/
 
 ENV DB_PATH=/data/shelf.db
 VOLUME ["/data"]

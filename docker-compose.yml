@@ -1,8 +1,10 @@
 services:
   bookshelf:
     build: .
+    image: ghcr.io/stefano664/bookshelf-tracker:0.1.0
     ports:
       - "5000:5000"
     volumes:
       - ./data:/data
     restart: unless-stopped
+
