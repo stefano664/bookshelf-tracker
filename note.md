@@ -13,3 +13,6 @@ docker build -t bookshelf-tracker:0.2.0 .
 # 4. Pusha l'immagine
 docker tag bookshelf-tracker:0.2.0 ghcr.io/stefano664/bookshelf-tracker:0.2.0
 docker push ghcr.io/stefano664/bookshelf-tracker:0.2.0
+
+# 5. Pusha i TAGs
+git push origin --tags
