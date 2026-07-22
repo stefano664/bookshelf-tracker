@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.1] — 2026-07-22
+
+### Corretto
+- Il campo "Nome facoltativo" nella card di prestito era ridotto a un rettangolo strettissimo a causa di una regola CSS troppo generica; ora occupa correttamente lo spazio disponibile (BOOK-001).
+
 ## [0.2.0] — 2026-07-03
 
 ### Aggiunto
