@@ -2,10 +2,11 @@ import os
 import sqlite3
 from datetime import datetime
 
-from flask import Flask, jsonify, request, g, render_template
+from flask import Flask, jsonify, request, g, render_template, send_file
 
 DB_PATH = os.environ.get("DB_PATH", "/data/shelf.db")
 BASE_URL = os.environ.get("BASE_URL", "").rstrip("/")
+LOGO_PATH = os.environ.get("LOGO_PATH", "")
 
 with open(os.path.join(os.path.dirname(__file__), "VERSION")) as f:
     APP_VERSION = f.read().strip()
@@ -94,6 +95,13 @@ def index():
 @app.route("/favicon.ico")
 def favicon():
     return app.send_static_file("favicon.ico")
+
+
+@app.route("/logo")
+def logo():
+    if not LOGO_PATH or not os.path.isfile(LOGO_PATH):
+        return jsonify({"error": "not_found"}), 404
+    return send_file(LOGO_PATH)
 
 
 @app.route("/api/version", methods=["GET"])
