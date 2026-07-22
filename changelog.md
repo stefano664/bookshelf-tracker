@@ -4,6 +4,7 @@
 
 ### Aggiunto
 - Nella procedura di prestito, un pulsante rosso "×" accanto a "Conferma" permette di annullare l'operazione senza aggiornare la pagina (BOOK-003).
+- Il PNG stampabile del QR (e la relativa anteprima) mostrano ora il nome dell'autore e, se configurato tramite la variabile d'ambiente `LOGO_PATH`, un logo sopra il QR.
 
 ### Modificato
 - Il container Docker avvia il servizio con Gunicorn invece del server di sviluppo di Flask, rimuovendo il relativo warning ed essendo adatto alla produzione.
