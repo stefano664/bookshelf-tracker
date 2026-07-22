@@ -70,6 +70,7 @@
   .modal h2{font-family:'Lora',serif;font-size:16px;font-weight:600;margin:0 0 2px;}
   .modal .callno{margin:0 0 4px;}
   .qr-large{display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px;margin:12px 0;}
+  .modal-logo{display:block;max-width:70%;max-height:70px;margin:0 auto 8px;}
   .card-actions{display:flex;flex-direction:column;gap:8px;}
   .card-actions > button{width:100%;}
   .inline-form{display:flex;gap:6px;}
@@ -138,8 +139,10 @@
 
 <div class="modal-overlay" id="qrModal" style="display:none;">
   <div class="modal">
+    <img class="modal-logo" id="qrModalLogo" style="display:none;">
     <h2 id="qrModalTitle"></h2>
     <p class="callno" id="qrModalId"></p>
+    <p class="author" id="qrModalAuthor"></p>
     <div class="qr-large" id="qrModalBox"></div>
     <div class="panel-actions">
       <button class="ghost" id="qrModalClose">Chiudi</button>
@@ -150,6 +153,16 @@
 
 <script>
 const BASE_URL = {{ base_url|tojson }} || window.location.origin;
+
+function loadLogo(){
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = '/logo';
+  });
+}
+const logoReady = loadLogo();
 
 let books = [];
 let focusId = new URLSearchParams(window.location.search).get('book');
@@ -258,12 +271,17 @@ function render(){
   });
 }
 
-function openQrModal(id){
+async function openQrModal(id){
   const book = books.find(b => b.id === id);
   if(!book) return;
   modalBookId = id;
   document.getElementById('qrModalTitle').textContent = book.title;
   document.getElementById('qrModalId').textContent = id;
+  document.getElementById('qrModalAuthor').textContent = book.author || '';
+  const logoImg = document.getElementById('qrModalLogo');
+  const logo = await logoReady;
+  logoImg.style.display = logo ? 'block' : 'none';
+  if(logo) logoImg.src = logo.src;
   const box = document.getElementById('qrModalBox');
   box.innerHTML = '';
   new QRCode(box, {text: bookPermalink(id), width: 220, height: 220, colorDark: '#22282A', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
