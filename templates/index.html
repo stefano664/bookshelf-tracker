@@ -139,7 +139,7 @@
 
 <div class="modal-overlay" id="qrModal" style="display:none;">
   <div class="modal">
-    <img class="modal-logo" id="qrModalLogo" style="display:none;">
+    <img class="modal-logo" id="qrModalLogo" alt="Logo" style="display:none;">
     <h2 id="qrModalTitle"></h2>
     <p class="callno" id="qrModalId"></p>
     <p class="author" id="qrModalAuthor"></p>
@@ -277,7 +277,9 @@ async function openQrModal(id){
   modalBookId = id;
   document.getElementById('qrModalTitle').textContent = book.title;
   document.getElementById('qrModalId').textContent = id;
-  document.getElementById('qrModalAuthor').textContent = book.author || '';
+  const authorEl = document.getElementById('qrModalAuthor');
+  authorEl.textContent = book.author || '';
+  authorEl.style.display = book.author ? '' : 'none';
   const logoImg = document.getElementById('qrModalLogo');
   const logo = await logoReady;
   logoImg.style.display = logo ? 'block' : 'none';
@@ -308,6 +310,15 @@ function wrapText(ctx, text, maxWidth){
   });
   if(line) lines.push(line);
   return lines;
+}
+
+function truncateText(ctx, text, maxWidth){
+  let str = String(text);
+  if(ctx.measureText(str).width <= maxWidth) return str;
+  while(str.length > 0 && ctx.measureText(str + '…').width > maxWidth){
+    str = str.slice(0, -1);
+  }
+  return str + '…';
 }
 
 function fitContain(imgW, imgH, boxW, boxH){
@@ -355,7 +366,7 @@ async function downloadQr(){
   if(book && book.author){
     ctx.font = 'italic 22px Georgia, serif';
     ctx.fillStyle = '#555555';
-    ctx.fillText(book.author, W / 2, y + 6);
+    ctx.fillText(truncateText(ctx, book.author, W - 120), W / 2, y + 6);
     y += 34;
     ctx.fillStyle = '#000000';
   }

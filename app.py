@@ -101,7 +101,10 @@ def favicon():
 def logo():
     if not LOGO_PATH or not os.path.isfile(LOGO_PATH):
         return jsonify({"error": "not_found"}), 404
-    return send_file(LOGO_PATH)
+    try:
+        return send_file(LOGO_PATH)
+    except (OSError, IOError):
+        return jsonify({"error": "not_found"}), 404
 
 
 @app.route("/api/version", methods=["GET"])
