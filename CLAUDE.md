@@ -12,6 +12,14 @@ Whenever a defect from bugs.md is fixed, append `[FIXED]` to its title line in t
 
 Only tag a defect `[FIXED]` once the root cause has been found and a corresponding code change has been verified (not merely attempted or suspected). If a defect turns out to be unreproducible or has no identifiable root cause in this codebase, leave it untagged and say so explicitly instead of tagging it.
 
+## Changelog policy
+
+Every significant change to this project — a bug fix, a new feature, a behavior change — must be reflected in [changelog.md](changelog.md) in the same turn it's made, not just when the version is explicitly bumped:
+
+- If the change happens under the version already at the top of changelog.md and that version has no corresponding git tag yet (i.e. it hasn't shipped), add/extend a bullet under that existing entry (under `### Aggiunto`, `### Modificato`, or `### Corretto` as appropriate) rather than creating a new version section.
+- Only create a new `## [X.Y.Z] — <date>` entry when actually asked to bump the version (see workflow below).
+- Skip purely internal chores with no user-visible effect (e.g. renaming a scratch file, updating this document) — the changelog is for changes a user of the app would care about.
+
 ## Version bump workflow
 
 Whenever asked to bump the version (e.g. "aggiorna la versione a X.Y.Z"), update every file that references the current version number:

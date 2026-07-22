@@ -36,6 +36,8 @@
   button.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
   button.primary:hover{background:#195A4B;}
   button.ghost{background:transparent;}
+  button.danger{background:#fff;border-color:#B23A3A;color:#B23A3A;font-size:18px;font-weight:700;line-height:1;padding:9px 12px;flex:0 0 auto;}
+  button.danger:hover{background:#B23A3A;color:#fff;}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:20px;}
   .panel h2{font-family:'Lora',serif;font-size:15px;font-weight:600;margin:0 0 10px;}
   .row{display:flex;gap:10px;flex-wrap:wrap;}
@@ -340,8 +342,9 @@ function renderActions(id, showForm){
       el.innerHTML = `
         <p class="hint">Nome facoltativo</p>
         <div class="inline-form">
-          <input type="text" placeholder="Chi lo prende (facoltativo)" id="nameInput-${cssSafe(id)}">
+          <input type="text" placeholder="Chi lo prende (facoltativo)" autocomplete="name" value="${escapeHtml(getRememberedName())}" id="nameInput-${cssSafe(id)}">
           <button class="primary" onclick="confirmCheckout('${id}')">Conferma</button>
+          <button class="danger" onclick="renderActions('${id}', false)" title="Annulla" aria-label="Annulla">&times;</button>
         </div>`;
     } else {
       el.innerHTML = `<button onclick="renderActions('${id}', true)">Segna come preso</button>`;
@@ -351,9 +354,21 @@ function renderActions(id, showForm){
   }
 }
 
+const REMEMBERED_NAME_KEY = 'bookshelf:lastName';
+
+function getRememberedName(){
+  try{ return localStorage.getItem(REMEMBERED_NAME_KEY) || ''; }catch(e){ return ''; }
+}
+
+function rememberName(name){
+  if(!name) return;
+  try{ localStorage.setItem(REMEMBERED_NAME_KEY, name); }catch(e){ /* storage non disponibile */ }
+}
+
 async function confirmCheckout(id){
   const input = document.getElementById('nameInput-' + cssSafe(id));
   const name = (input.value || '').trim();
+  rememberName(name);
   try{
     await api(`/api/books/${encodeURIComponent(id)}/checkout`, {
       method: 'POST',
@@ -476,7 +491,7 @@ async function loadLogs(){
           <tr>
             <td>${fmtDateTime(l.timestamp)}</td>
             <td>${escapeHtml(l.book_title || l.book_id)}</td>
-            <td><span class="tag ${l.action}">${l.action === 'checkout' ? 'preso' : 'restituito'}</span></td>
+            <td><span class="tag ${l.action}">${l.action === 'checkout' ? 'PRESO' : 'RESTITUITO'}</span></td>
             <td>${escapeHtml(l.actor_name || '—')}</td>
           </tr>
         `).join('')}

@@ -17,7 +17,7 @@ The input field under the "Nome facoltativo" label should be horizontally wide e
 
 ---
 
-## Defcet BOOK--02
+## Defect BOOK-002
 
 ** Descrizione **
 
@@ -29,3 +29,20 @@ Il nome dell'utente che ha preso in prestito il libro, se inserito da smartphone
 2. Inserire il proprio nome nella casella di testo (es. Stefano)
 3. Cliccare su "Conferma"
 4. Verificare il nome presente nella colonna "UTENTE" del log: da cellulare viene presentato il nome al contratio (es. onafetS)
+
+---
+
+## Defect BOOK-003 [FIXED]
+
+** Descrizione **
+
+Una volta avviata la procedura di prestito non è possibile interromperla se non aggiornando la pagina
+
+** Steps per riprodurre **
+
+1. Cliccare su "Segna come preso"
+2. Il sistema presenta il tasto "CONFERMA" in verde ma nessun pulsante per annullare
+
+** Soluzione **
+
+Introdurre un pulsante di annullamento, rosso con una X grande, che riporti allo stato precedente

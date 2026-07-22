@@ -1,6 +1,17 @@
 # Changelog
 
+## [0.2.2] — 2026-07-22
+
+### Aggiunto
+- Nella procedura di prestito, un pulsante rosso "×" accanto a "Conferma" permette di annullare l'operazione senza aggiornare la pagina (BOOK-003).
+
+### Modificato
+- Il container Docker avvia il servizio con Gunicorn invece del server di sviluppo di Flask, rimuovendo il relativo warning ed essendo adatto alla produzione.
+
 ## [0.2.1] — 2026-07-22
+
+### Aggiunto
+- Il nome inserito al momento del prestito viene ricordato sul dispositivo (localStorage) e proposto automaticamente nei prestiti successivi; il campo ha anche `autocomplete="name"` per sfruttare l'autofill nativo del browser.
 
 ### Corretto
 - Il campo "Nome facoltativo" nella card di prestito era ridotto a un rettangolo strettissimo a causa di una regola CSS troppo generica; ora occupa correttamente lo spazio disponibile (BOOK-001).
