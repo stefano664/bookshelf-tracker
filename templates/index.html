@@ -310,12 +310,21 @@ function wrapText(ctx, text, maxWidth){
   return lines;
 }
 
-function downloadQr(){
+function fitContain(imgW, imgH, boxW, boxH){
+  const scale = Math.min(boxW / imgW, boxH / imgH);
+  return {w: imgW * scale, h: imgH * scale};
+}
+
+async function downloadQr(){
   if(!modalBookId) return;
   const book = books.find(b => b.id === modalBookId);
+  const logo = await logoReady;
+
+  const QR_SIZE = 520;
   const tmp = document.createElement('div');
-  new QRCode(tmp, {text: bookPermalink(modalBookId), width: 600, height: 600, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H});
+  new QRCode(tmp, {text: bookPermalink(modalBookId), width: QR_SIZE, height: QR_SIZE, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H});
   const qrCanvas = tmp.querySelector('canvas');
+
   const W = 800;
   const canvas = document.createElement('canvas');
   canvas.width = W;
@@ -323,17 +332,37 @@ function downloadQr(){
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, W, canvas.height);
-  ctx.drawImage(qrCanvas, 100, 60, 600, 600);
+
+  let y = 60;
+  if(logo){
+    const LOGO_BOX_W = 500, LOGO_BOX_H = 140, LOGO_TOP = 40;
+    const {w, h} = fitContain(logo.naturalWidth, logo.naturalHeight, LOGO_BOX_W, LOGO_BOX_H);
+    ctx.drawImage(logo, (W - w) / 2, LOGO_TOP + (LOGO_BOX_H - h) / 2, w, h);
+    y = LOGO_TOP + LOGO_BOX_H + 20;
+  }
+
+  ctx.drawImage(qrCanvas, (W - QR_SIZE) / 2, y, QR_SIZE, QR_SIZE);
+  y += QR_SIZE + 40;
+
   ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
   ctx.font = '600 34px Georgia, serif';
-  let y = 740;
-  wrapText(ctx, book ? book.title : modalBookId, W - 120).slice(0, 3).forEach(line => {
+  wrapText(ctx, book ? book.title : modalBookId, W - 120).slice(0, 2).forEach(line => {
     ctx.fillText(line, W / 2, y);
     y += 44;
   });
+
+  if(book && book.author){
+    ctx.font = 'italic 22px Georgia, serif';
+    ctx.fillStyle = '#555555';
+    ctx.fillText(book.author, W / 2, y + 6);
+    y += 34;
+    ctx.fillStyle = '#000000';
+  }
+
   ctx.font = '28px "IBM Plex Mono", monospace';
   ctx.fillText(modalBookId, W / 2, y + 14);
+
   const a = document.createElement('a');
   a.download = 'qr-' + modalBookId + '.png';
   a.href = canvas.toDataURL('image/png');
