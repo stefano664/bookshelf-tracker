@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.3] — 2026-07-23
+
+### Modificato
+- Nel PNG stampabile del QR il logo (se configurato) è stato spostato sotto il QR code, così l'ordine degli elementi (titolo, autore, codice libro, QR, logo) è lo stesso sia nell'anteprima nella modale sia nel PNG scaricato.
+
 ## [0.2.2] — 2026-07-22
 
 ### Aggiunto

@@ -140,8 +140,8 @@
 <div class="modal-overlay" id="qrModal" style="display:none;">
   <div class="modal">
     <h2 id="qrModalTitle"></h2>
-    <p class="callno" id="qrModalId"></p>
     <p class="author" id="qrModalAuthor"></p>
+    <p class="callno" id="qrModalId"></p>
     <div class="qr-large" id="qrModalBox"></div>
     <img class="modal-logo" id="qrModalLogo" alt="Logo" style="display:none;">
     <div class="panel-actions">
@@ -345,16 +345,6 @@ async function downloadQr(){
   ctx.fillRect(0, 0, W, canvas.height);
 
   let y = 60;
-  ctx.drawImage(qrCanvas, (W - QR_SIZE) / 2, y, QR_SIZE, QR_SIZE);
-  y += QR_SIZE + 40;
-
-  if(logo){
-    const LOGO_BOX_W = 500, LOGO_BOX_H = 140;
-    const {w, h} = fitContain(logo.naturalWidth, logo.naturalHeight, LOGO_BOX_W, LOGO_BOX_H);
-    ctx.drawImage(logo, (W - w) / 2, y + (LOGO_BOX_H - h) / 2, w, h);
-    y += LOGO_BOX_H + 20;
-  }
-
   ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
   ctx.font = '600 34px Georgia, serif';
@@ -373,6 +363,17 @@ async function downloadQr(){
 
   ctx.font = '28px "IBM Plex Mono", monospace';
   ctx.fillText(modalBookId, W / 2, y + 14);
+  y += 40;
+
+  ctx.drawImage(qrCanvas, (W - QR_SIZE) / 2, y, QR_SIZE, QR_SIZE);
+  y += QR_SIZE + 20;
+
+  if(logo){
+    const LOGO_BOX_W = 500, LOGO_BOX_H = 140;
+    const {w, h} = fitContain(logo.naturalWidth, logo.naturalHeight, LOGO_BOX_W, LOGO_BOX_H);
+    ctx.drawImage(logo, (W - w) / 2, y + (LOGO_BOX_H - h) / 2, w, h);
+    y += LOGO_BOX_H;
+  }
 
   const a = document.createElement('a');
   a.download = 'qr-' + modalBookId + '.png';
