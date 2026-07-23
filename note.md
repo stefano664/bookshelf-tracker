@@ -19,3 +19,5 @@ git push origin --tags
 
 # 6. Avvio locale del servizio
 docker run --rm -p 5000:5000 bookshelf-tracker:0.2.2
+
+docker run --rm -p 5000:5000 -v "$(pwd)/static/logo_quadev_small.png:/data/logo_quadev_small.png:ro" -e LOGO_PATH=/data/logo_quadev_small.png bookshelf-tracker:0.2.2

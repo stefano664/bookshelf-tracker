@@ -68,7 +68,7 @@ def init_db():
             ("NAR-03", "Le otto montagne", "Paolo Cognetti"),
         ]
         db.executemany(
-            "INSERT INTO books (id, title, author, status) VALUES (?, ?, ?, 'available')",
+            "INSERT OR IGNORE INTO books (id, title, author, status) VALUES (?, ?, ?, 'available')",
             seed,
         )
         db.commit()

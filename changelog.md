@@ -4,10 +4,14 @@
 
 ### Aggiunto
 - Nella procedura di prestito, un pulsante rosso "×" accanto a "Conferma" permette di annullare l'operazione senza aggiornare la pagina (BOOK-003).
-- Il PNG stampabile del QR (e la relativa anteprima) mostrano ora il nome dell'autore e, se configurato tramite la variabile d'ambiente `LOGO_PATH`, un logo sopra il QR.
+- Il PNG stampabile del QR (e la relativa anteprima) mostrano ora il nome dell'autore e, se configurato tramite la variabile d'ambiente `LOGO_PATH`, un logo sotto il QR.
 
 ### Modificato
 - Il container Docker avvia il servizio con Gunicorn invece del server di sviluppo di Flask, rimuovendo il relativo warning ed essendo adatto alla produzione.
+
+### Corretto
+- Gunicorn era configurato con un solo worker: una connessione inattiva o lenta poteva bloccare l'intero servizio per fino a 30 secondi (log "WORKER TIMEOUT") prima che il worker venisse riavviato automaticamente. Ora sono configurati 2 worker, così una connessione bloccata non ferma le altre richieste.
+- Corretta una race condition nel seeding iniziale del database: con più worker Gunicorn avviati in parallelo, due processi potevano tentare di inserire i libri di esempio contemporaneamente e andare in errore (violazione della chiave primaria). L'inserimento ora usa `INSERT OR IGNORE`.
 
 ## [0.2.1] — 2026-07-22
 

@@ -139,11 +139,11 @@
 
 <div class="modal-overlay" id="qrModal" style="display:none;">
   <div class="modal">
-    <img class="modal-logo" id="qrModalLogo" alt="Logo" style="display:none;">
     <h2 id="qrModalTitle"></h2>
     <p class="callno" id="qrModalId"></p>
     <p class="author" id="qrModalAuthor"></p>
     <div class="qr-large" id="qrModalBox"></div>
+    <img class="modal-logo" id="qrModalLogo" alt="Logo" style="display:none;">
     <div class="panel-actions">
       <button class="ghost" id="qrModalClose">Chiudi</button>
       <button class="primary" id="qrModalDownload">Scarica per la stampa</button>
@@ -345,15 +345,15 @@ async function downloadQr(){
   ctx.fillRect(0, 0, W, canvas.height);
 
   let y = 60;
-  if(logo){
-    const LOGO_BOX_W = 500, LOGO_BOX_H = 140, LOGO_TOP = 40;
-    const {w, h} = fitContain(logo.naturalWidth, logo.naturalHeight, LOGO_BOX_W, LOGO_BOX_H);
-    ctx.drawImage(logo, (W - w) / 2, LOGO_TOP + (LOGO_BOX_H - h) / 2, w, h);
-    y = LOGO_TOP + LOGO_BOX_H + 20;
-  }
-
   ctx.drawImage(qrCanvas, (W - QR_SIZE) / 2, y, QR_SIZE, QR_SIZE);
   y += QR_SIZE + 40;
+
+  if(logo){
+    const LOGO_BOX_W = 500, LOGO_BOX_H = 140;
+    const {w, h} = fitContain(logo.naturalWidth, logo.naturalHeight, LOGO_BOX_W, LOGO_BOX_H);
+    ctx.drawImage(logo, (W - w) / 2, y + (LOGO_BOX_H - h) / 2, w, h);
+    y += LOGO_BOX_H + 20;
+  }
 
   ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
